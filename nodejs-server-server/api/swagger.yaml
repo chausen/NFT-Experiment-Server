@@ -21,13 +21,13 @@ tags:
 schemes:
 - "http"
 paths:
-  /allMeasurements:
+  /:
     post:
       tags:
       - "sensor"
       summary: "Add a set of measurements for temperature, EC, voltage, pH, and rH"
       description: ""
-      operationId: "updatePetWithForm"
+      operationId: allMeasurements
       consumes:
       - "application/x-www-form-urlencoded"
       produces:
@@ -77,6 +77,10 @@ paths:
         type: "string"
         format: "dateTime"
       responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/AllMeasurementsResponse"
         405:
           description: "Invalid input"
       x-swagger-router-controller: "Sensor"

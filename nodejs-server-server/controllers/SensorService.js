@@ -1,6 +1,6 @@
 'use strict';
 
-exports.updatePetWithForm = function(args, res, next) {
+exports.allMeasurements = function(args, res, next) {
   /**
    * Add a set of measurements for temperature, EC, voltage, pH, and rH
    * 
@@ -14,6 +14,8 @@ exports.updatePetWithForm = function(args, res, next) {
    * timestamp String time the measurements were collected
    * no response value expected for this operation
    **/
+  res.json({success: 1, description: "Sensor data uploaded."});
+
   res.end();
 }
 
