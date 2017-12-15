@@ -1,87 +1,67 @@
 ---
 swagger: "2.0"
 info:
-  description: "An API for measurements used in monitoring plant systems."
+  description: "Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/)\
+    \ or HTML."
   version: "1.0.0"
-  title: "NFT Experiment"
-  termsOfService: "http://swagger.io/terms/"
-  contact:
-    email: "apiteam@swagger.io"
-  license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "petstore.swagger.io"
-basePath: "/v2"
-tags:
-- name: "sensor"
-  description: "Endpoints relating to sensor data"
-  externalDocs:
-    description: "Find out more"
-    url: "http://swagger.io"
-schemes:
-- "http"
+  title: "DataLogger API"
 paths:
-  /:
+  /log:
     post:
-      tags:
-      - "sensor"
-      summary: "Add a set of measurements for temperature, EC, voltage, pH, and rH"
-      description: ""
-      operationId: allMeasurements
+      summary: "Create a new log entry."
+      description: "Optional extended description in CommonMark or HTML."
+      operationId: "logPOST"
       consumes:
-      - "application/x-www-form-urlencoded"
+      - "application/json"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
-      - name: "ec"
-        in: "formData"
+      - in: "body"
+        name: "entry"
+        required: true
+        schema:
+          $ref: "#/definitions/LogEntry"
+      responses:
+        204:
+          description: "A log entry is successfully made and nothing is returned."
+      x-swagger-router-controller: "Default"
+    x-swagger-router-controller: "entry"
+definitions:
+  LogEntry:
+    required:
+    - "aTemp"
+    - "ec"
+    - "pH"
+    - "rH"
+    - "timestamp"
+    - "voltage"
+    - "wTemp"
+    properties:
+      ec:
+        type: "number"
+        format: "float"
         description: "Electrical conductivity measurement"
-        required: true
+      voltage:
         type: "number"
         format: "float"
-      - name: "voltage"
-        in: "formData"
         description: "Voltage measurement (in volts)"
-        required: true
+      pH:
         type: "number"
         format: "float"
-      - name: "pH"
-        in: "formData"
         description: "pH measurement"
-        required: true
+      rH:
         type: "number"
         format: "float"
-      - name: "rH"
-        in: "formData"
         description: "rH measurement"
-        required: true
+      wTemp:
         type: "number"
         format: "float"
-      - name: "wTemp"
-        in: "formData"
-        description: "WTemperature measurement"
-        required: true
+        description: "Water Temperature measurement"
+      aTemp:
         type: "number"
         format: "float"
-      - name: "aTemp"
-        in: "formData"
-        description: "ATemperature measurement"
-        required: true
-        type: "number"
-        format: "float"
-      - name: "timestamp"
-        in: "formData"
-        description: "time the measurements were collected"
-        required: true
+        description: "Air Temperature measurement"
+      timestamp:
         type: "string"
         format: "dateTime"
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/AllMeasurementsResponse"
-        405:
-          description: "Invalid input"
-      x-swagger-router-controller: "Sensor"
-definitions: {}
+        description: "Time the measurements were collected"

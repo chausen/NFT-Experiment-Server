@@ -1,7 +1,7 @@
 {
-  "name": "nft-experiment",
+  "name": "datalogger-api",
   "version": "1.0.0",
-  "description": "An API for measurements used in monitoring plant systems.",
+  "description": "Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.",
   "main": "index.js",
   "scripts": {
 	"prestart": "npm install",
