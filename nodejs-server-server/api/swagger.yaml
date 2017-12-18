@@ -6,7 +6,7 @@ info:
   version: "1.0.0"
   title: "DataLogger API"
 paths:
-  /log:
+  /log:    
     post:
       summary: "Create a new log entry."
       description: "Optional extended description in CommonMark or HTML."
@@ -16,8 +16,8 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "entry"
+      - name: "entry"
+        in: "body"        
         required: true
         schema:
           $ref: "#/definitions/LogEntry"
@@ -26,6 +26,27 @@ paths:
           description: "A log entry is successfully made and nothing is returned."
       x-swagger-router-controller: "Default"
     x-swagger-router-controller: "entry"
+  /log/{timestamp}:
+    get:
+      summary: "Get all logs after the provided timestamp"
+      description: "Optional extended description in CommonMark or HTML."
+      operationId: "logGET"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "timestamp"
+        in: "path"        
+        description: "Only log entries whose timestamp comes after this one will be returned"
+        required: true
+        type: "string"
+        format: "date-time"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/LogEntry"
 definitions:
   LogEntry:
     required:
