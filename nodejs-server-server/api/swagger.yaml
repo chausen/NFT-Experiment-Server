@@ -30,6 +30,7 @@ paths:
     get:
       summary: "Get all logs after the provided timestamp"
       description: "Optional extended description in CommonMark or HTML."
+      x-swagger-router-controller: "GetLogs"
       operationId: "logGET"
       produces:
       - "application/json"
