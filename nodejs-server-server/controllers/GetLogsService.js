@@ -9,20 +9,23 @@ exports.logGET = function(args, res, next) {
    * no response value expected for this operation
    **/
 
-   let inputTimestamp = args.timestamp.value;
+    //    let inputTimestamp = new Date(args.timestamp.value);
+    let inputTimestamp = args.timestamp.value.toISOString();
 
   let MongoClient = require('mongodb').MongoClient;
   let url = "mongodb://localhost:27017/GH";                    
 
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
-    let query = {"timestamp": { $gt: inputTimestamp }};    
+      let query = {"timestamp": { "$gt": inputTimestamp }};
+      console.log("Query: " + JSON.stringify(query));
+      
     db.collection("EnvParms").find(query).toArray(function(err, results) {
       if (err) throw err;
-      res.json(results);
-      db.close();
+	console.log(results);
+	res.write(JSON.stringify(results));	
+	db.close();
+	res.end();
     });
   }); 
-
-  res.end();
 }
