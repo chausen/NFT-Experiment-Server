@@ -4,8 +4,8 @@
   "description": "Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.",
   "main": "index.js",
   "scripts": {
-	"prestart": "npm install",
-	"start": "node index.js"
+    "prestart": "npm install",
+    "start": "node index.js"
   },
   "keywords": [
     "swagger"
@@ -16,5 +16,9 @@
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
     "swagger-tools": "0.10.1"
+  },
+  "devDependencies": {
+    "mongod": "^2.0.0",
+    "mongodb": "^3.0.0-rc0"
   }
 }
