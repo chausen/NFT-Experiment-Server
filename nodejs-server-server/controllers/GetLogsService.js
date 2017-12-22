@@ -16,13 +16,15 @@ exports.logGET = function(args, res, next) {
 
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
+    
     let query = {"timestamp": { "$gt": inputTimestamp }};    
+      
     db.collection("EnvParms").find(query).toArray(function(err, results) {
       if (err) throw err;
-      res.json(results);
-      db.close();
+	console.log(results);
+	res.write(JSON.stringify(results));	
+	db.close();
+	res.end();
     });
   }); 
-
-  res.end();
 }
