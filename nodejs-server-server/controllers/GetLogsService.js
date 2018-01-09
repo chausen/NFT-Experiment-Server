@@ -9,7 +9,7 @@ exports.logGET = function(args, res, next) {
    * no response value expected for this operation
    **/
 
-   let inputTimestamp = new Date(args.timestamp.value);
+  let inputTimestamp = args.timestamp.value.toISOString();
 
   let MongoClient = require('mongodb').MongoClient;
   let url = "mongodb://localhost:27017/GH";                    

@@ -21,7 +21,8 @@ exports.logPOST = function(args, res, next) {
   
 
   MongoClient.connect(url, function(err, db) {
-    if (err) throw err;    
+    if (err) throw err;
+
     db.collection("EnvParms").insertOne(args.entry.value, function(err, res) {
       if (err) throw err;
       console.log("Inserted:");
