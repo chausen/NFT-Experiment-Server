@@ -1,10 +1,12 @@
-library(httr)
+library(RJSONIO)
 
 timestamp <- "2016-12-07T13:30:25Z"
 basereq <- "http://localhost:443/log/"
 fullreq <- paste0( basereq, timestamp, "/" )
 
-res <- GET(fullreq)
+logs <- fromJSON(fullreq)
 
-print(res)
+print(logs)
+
+logs
 
