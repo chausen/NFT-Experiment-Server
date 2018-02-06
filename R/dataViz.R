@@ -4,71 +4,54 @@ library(ggplot2)
 library(shiny)
 library(RJSONIO)
 library(parsedate)
+library(magrittr)
 
 ## Data Retrieval
 
+## Shiny UI 
 
+ui <- shinyServer(fluidPage(
+  plotOutput("first_column")
+))
 
-NodeData <- function() {
+server <- shinyServer(function(input, output, session){
   
-  lastTimestamp <- format_iso_8601(Sys.time())
-  
-  get.new.logs <- function(timestamp) {
+  # Get new data
+  get_new_data <- function(timestamp) {
+    
     basereq <- "http://45.32.220.103:443/log/"
     fullreq <- paste0(basereq, timestamp, "/" )
     logs <- fromJSON(fullreq)  
-  }
-  
-  while (T) {
-  
-  Sys.sleep(20)  
-      
-  logs <- get.new.logs(lastTimestamp)
-  
-  if (length(logs) == 0 ) {
     
+    if (length(logs) == 0 ) {
     
-  }
-    else {
-      
-    lastTimestamp <- format_iso_8601(Sys.time())
-    logsDF <- as.data.frame(unlist(logs))
-    return(logsDF)
     }
+    
+    else {
+      logsDF <- t(as.data.frame(unlist(logs)))
+      return(logsDF)
+    }
+    
   }
 
-}
+  # Initialize my_data
+  lastTimestamp <<- "2018-02-06T02:05:26+00:00" #format_iso_8601(Sys.time())
+  my_data <<- get_new_data(lastTimestamp)
 
-## Shiny UI 
-
-# Define UI for app that draws a histogram ----
-ui <- fluidPage(
-
-  # App title ----
-  titlePanel("Hello Shiny!"),
-
-    # Main panel for displaying outputs ----
-    mainPanel(
-
-      # Output: Line graph ----
-      plotOutput(outputId = "distPlot")
-
-    )
-  )
-
-## Shiny Server
-
-server = function(input = logsDF, output, session) {
-    autoInvalidate <- reactiveTimer(3000, session)
-    output$distPlot <- renderPlot({
-      autoInvalidate()
-      # generate an rnorm distribution and plot it
-      dist <- input$pH
-      plot(dist)
-    })
-
+  # Function to update my_data
+  update_data <- function(){
+    my_data <<- rbind(get_new_data(lastTimestamp), my_data)
+    lastTimestamp <<- format_iso_8601(Sys.time())
   }
 
-### RUN THE APP 
+  # Plot the 30 most recent values
+  output$first_column <- renderPlot({
+    print("Render")
+    invalidateLater(30000, session)
+    update_data()
+    print(my_data)
+    plot(my_data[,4], ylim=c(23,24), las=1, type="l")
+  })
+})
 
-shinyApp(ui = ui, server = server)
+shinyApp(ui=ui,server=server)
