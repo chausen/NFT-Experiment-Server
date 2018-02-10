@@ -5,6 +5,10 @@ library(shiny)
 library(RJSONIO)
 library(parsedate)
 library(magrittr)
+library(lubridate)
+library(scales)
+
+Sys.setenv(TZ = "UTC")
 
 ## Data Retrieval
 
@@ -23,34 +27,46 @@ server <- shinyServer(function(input, output, session){
     fullreq <- paste0(basereq, timestamp, "/" )
     logs <- fromJSON(fullreq)  
     
-    if (length(logs) == 0 ) {
+    if (length(logs) != 0 ) {
     
-    }
-    
-    else {
-      logsDF <- t(as.data.frame(unlist(logs)))
+      #print(names(sapply(logs, names)))
+      logsDF <- as.data.frame(t((unlist(logs))))
       return(logsDF)
     }
-    
   }
+
 
   # Initialize my_data
-  lastTimestamp <<- "2018-02-06T02:05:26+00:00" #format_iso_8601(Sys.time())
+  lastTimestamp <<- now() - seconds(30)
   my_data <<- get_new_data(lastTimestamp)
-
+  lastTimestamp <<- now()
+  
   # Function to update my_data
   update_data <- function(){
-    my_data <<- rbind(get_new_data(lastTimestamp), my_data)
-    lastTimestamp <<- format_iso_8601(Sys.time())
+    newdata <- get_new_data(lastTimestamp)
+    
+      if (!is.null(newdata)) {
+        my_data <<- rbind(newdata, my_data)
+        lastTimestamp <<- now()
+      }
   }
-
-  # Plot the 30 most recent values
+  
+  print(mode(my_data$timestamp)) ; print(class(my_data$timestamp)) ; print(typeof(my_data$timestamp))
+  print(as.POSIXct(my_data$timestamp,format ="%x"))
+  
+  # Line plot of values
   output$first_column <- renderPlot({
-    print("Render")
-    invalidateLater(30000, session)
+    #print("Render")
+    invalidateLater(5000, session)
     update_data()
-    print(my_data)
-    plot(my_data[,4], ylim=c(23,24), las=1, type="l")
+    # Line plot with multiple groups
+    ggplot(data=my_data, aes(x=timestamp, 
+                             y=as.numeric(levels(my_data$rH))[my_data$rH], 
+                             group = 1)) +
+       ylab('Relative Humidity (rH)') + xlab("Timepoint") +
+       geom_line(linetype="dashed", color="blue", size=1.2) +
+       geom_point(color="red", size=3) +
+       theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
   })
 })
 
