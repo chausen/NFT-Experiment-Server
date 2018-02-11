@@ -15,7 +15,11 @@ Sys.setenv(TZ = "UTC")
 ## Shiny UI 
 
 ui <- shinyServer(fluidPage(
-  plotOutput("first_column")
+  tabsetPanel(
+    type = "tabs",
+    tabPanel("Relative Humidity", plotOutput("rH")),
+    tabPanel("pH", plotOutput("pH"))
+    )
 ))
 
 server <- shinyServer(function(input, output, session){
@@ -37,36 +41,54 @@ server <- shinyServer(function(input, output, session){
 
 
   # Initialize my_data
-  lastTimestamp <<- now() - seconds(30)
-  my_data <<- get_new_data(lastTimestamp)
+  lastTimestamp <<- now() - minutes(3)
+  my_data <<- as.data.frame(get_new_data(lastTimestamp))
   lastTimestamp <<- now()
   
   # Function to update my_data
   update_data <- function(){
     newdata <- get_new_data(lastTimestamp)
-    
+    print(newdata)
       if (!is.null(newdata)) {
         my_data <<- rbind(newdata, my_data)
         lastTimestamp <<- now()
       }
+    print(my_data)
+    return(my_data)
   }
   
-  print(mode(my_data$timestamp)) ; print(class(my_data$timestamp)) ; print(typeof(my_data$timestamp))
-  print(as.POSIXct(my_data$timestamp,format ="%x"))
+  # TRYING TO FIGURE OUT TIMESTAMPS
+  #print(mode(my_data$timestamp)) ; print(class(my_data$timestamp)) ; print(typeof(my_data$timestamp))
+  #print(as.POSIXct(my_data$timestamp,format ="%x"))
   
   # Line plot of values
-  output$first_column <- renderPlot({
-    #print("Render")
-    invalidateLater(5000, session)
-    update_data()
-    # Line plot with multiple groups
-    ggplot(data=my_data, aes(x=timestamp, 
-                             y=as.numeric(levels(my_data$rH))[my_data$rH], 
+  
+  observe({
+     invalidateLater(5000, session)
+     sensors <<- update_data()
+  })
+  
+
+  output$rH <- renderPlot({
+    # Line plot of relative humidity
+    ggplot(data=sensors, aes(x=timestamp, 
+                             y=as.numeric(levels(sensors$rH))[sensors$rH], 
                              group = 1)) +
        ylab('Relative Humidity (rH)') + xlab("Timepoint") +
-       geom_line(linetype="dashed", color="blue", size=1.2) +
-       geom_point(color="red", size=3) +
-       theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+       geom_line(linetype="solid", color="skyblue2", size=2) +
+       geom_point(color="slategray4", size=2) +
+       theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  })
+  
+  output$pH <- renderPlot({
+    # Line plot of relative humidity
+    ggplot(data=sensors, aes(x=timestamp,
+                             y=as.numeric(levels(sensors$pH))[sensors$pH],
+                             group = 1)) +
+       ylab('pH') + xlab("Timepoint") +
+       geom_line(linetype="solid", color="skyblue2", size=2) +
+       geom_point(color="slategray4", size=2) +
+       theme(axis.text.x = element_text(angle = 90, hjust = 1))
   })
 })
 
