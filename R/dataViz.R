@@ -37,14 +37,16 @@ server <- shinyServer(function(input, output, session){
 
 
   # Initialize my_data
-  lastTimestamp <<- now() - seconds(30)
+  lastTimestamp <<- now() - minutes(3)
   my_data <<- get_new_data(lastTimestamp)
+  my_data <<- as.data.frame(lapply(split(as.list(my_data), names(my_data)), unlist))
+  colnames(my_data)[1] <<- "_id"
+  View(my_data)
   lastTimestamp <<- now()
   
   # Function to update my_data
   update_data <- function(){
     newdata <- get_new_data(lastTimestamp)
-    
       if (!is.null(newdata)) {
         my_data <<- rbind(newdata, my_data)
         lastTimestamp <<- now()
