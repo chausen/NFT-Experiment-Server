@@ -7,6 +7,8 @@ library(parsedate)
 library(magrittr)
 library(lubridate)
 library(scales)
+library(rJava)
+library(mailR)
 
 Sys.setenv(TZ = "UTC")
 
@@ -43,7 +45,7 @@ server <- shinyServer(function(input, output, session){
 
 
   # Initialize my_data
-  lastTimestamp <<- now() - hours(1)
+  lastTimestamp <<- now() - minutes(10)
   my_data <<- get_new_data(lastTimestamp)
   my_data <<- as.data.frame(lapply(split(as.list(my_data), names(my_data)), unlist))
   colnames(my_data)[1] <<- "_id"
