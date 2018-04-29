@@ -19,7 +19,7 @@ exports.logGET = function(args, res, next) {
     
     let query = {"timestamp": { "$gt": inputTimestamp }};    
       
-    db.collection("EnvParms").find(query).toArray(function(err, results) {
+    db.collection("EnvParms-" + args.system.value).find(query).toArray(function(err, results) {
       if (err) throw err;
 	console.log(results);
 	res.write(JSON.stringify(results));	

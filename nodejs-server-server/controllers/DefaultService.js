@@ -11,7 +11,8 @@ exports.logPOST = function(args, res, next) {
 
   var MongoClient = require('mongodb').MongoClient;
   var url = "mongodb://localhost:27017/GH";
-  let dataLogText = `${args.entry.value.ec}
+  let dataLogText = `${args.system.value}
+                     ${args.entry.value.ec}
                      ${args.entry.value.voltage}
                      ${args.entry.value.pH}
                      ${args.entry.value.rH}
@@ -23,7 +24,7 @@ exports.logPOST = function(args, res, next) {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
 
-    db.collection("EnvParms").insertOne(args.entry.value, function(err, res) {
+    db.collection("EnvParms-" + args.system.value).insertOne(args.entry.value, function(err, res) {
       if (err) throw err;
       console.log("Inserted:");
       console.log(dataLogText);
