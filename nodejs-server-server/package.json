@@ -15,11 +15,9 @@
   "dependencies": {
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
-    "mongodb": "^2.2.33",
     "swagger-tools": "0.10.1"
   },
   "devDependencies": {
-    "mongod": "^2.0.0",
-    "mongodb": "^3.0.0-rc0"
+    "cradle": "^0.7.1"
   }
 }

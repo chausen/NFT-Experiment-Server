@@ -8,23 +8,22 @@ exports.logGET = function(args, res, next) {
    * entry LogEntry 
    * no response value expected for this operation
    **/
+  
+  const cradle = require('cradle');
+  const dbName = 'GH'
+  const db = new(cradle.Connection)().database(dbName); 
 
   let inputTimestamp = args.timestamp.value.toISOString();
+  let results = {};
 
-  let MongoClient = require('mongodb').MongoClient;
-  let url = "mongodb://localhost:27017/GH";                    
-
-  MongoClient.connect(url, function(err, db) {
-    if (err) throw err;
-    
-    let query = {"timestamp": { "$gt": inputTimestamp }};    
-      
-    db.collection("EnvParms-" + args.system.value).find(query).toArray(function(err, results) {
-      if (err) throw err;
-	console.log(results);
-	res.write(JSON.stringify(results));	
-	db.close();
-	res.end();
+  db.view(args.system.value, function(err, res) {
+    res.forEach(function (sensors) {
+      if (sensors.timestamp > inputTimestamp) {
+        results[sensors.timestamp] = sensors;
+      }
     });
-  }); 
+  });
+
+  res.write(JSON.stringify(results));
+  res.end();  
 }

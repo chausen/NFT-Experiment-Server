@@ -62,38 +62,12 @@ paths:
 definitions:
   LogEntry:
     required:
-    - "aTemp"
-    - "ec"
-    - "pH"
-    - "rH"
+    - "sensors"
     - "timestamp"
-    - "voltage"
-    - "wTemp"
     properties:
-      ec:
-        type: "number"
-        format: "float"
-        description: "Electrical conductivity measurement"
-      voltage:
-        type: "number"
-        format: "float"
-        description: "Voltage measurement (in volts)"
-      pH:
-        type: "number"
-        format: "float"
-        description: "pH measurement"
-      rH:
-        type: "number"
-        format: "float"
-        description: "rH measurement"
-      wTemp:
-        type: "number"
-        format: "float"
-        description: "Water Temperature measurement"
-      aTemp:
-        type: "number"
-        format: "float"
-        description: "Air Temperature measurement"
+      sensors:
+        type: "object"        
+        description: "The sensor data"      
       timestamp:
         type: "string"
         format: "dateTime"

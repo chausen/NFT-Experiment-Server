@@ -9,28 +9,50 @@ exports.logPOST = function(args, res, next) {
    * no response value expected for this operation
    **/
 
-  var MongoClient = require('mongodb').MongoClient;
-  var url = "mongodb://localhost:27017/GH";
-  let dataLogText = `${args.system.value}
-                     ${args.entry.value.ec}
-                     ${args.entry.value.voltage}
-                     ${args.entry.value.pH}
-                     ${args.entry.value.rH}
-                     ${args.entry.value.wTemp}
-                     ${args.entry.value.aTemp}
-                     ${args.entry.value.timestamp}`;                    
+  const cradle = require('cradle');
+  const dbName = 'GH';
+  const db = new(cradle.Connection)().database(dbName); 
   
+  db.exists(function (err, exists) {
+    if (err) {
+      console.log('error', err);      
+    } else if (exists) {
+      // Do nothing
+    } else {
+      console.log('Creating ' + dbName);
+      db.create(function(err) {
+        console.log('Error creating ' + dbName);
+      });
+    }
+  });
 
-  MongoClient.connect(url, function(err, db) {
-    if (err) throw err;
+  db.get('_design/' + args.system.value, function (err, doc) {
+    if (err) {
+      let newView = {};
+      newView[args.system.value] = {
+        map: function (doc) {
+          if (doc.system && doc.system == args.system.value)
+            emit(doc.timestamp, doc.sensors);
+      }};
 
-    db.collection("EnvParms-" + args.system.value).insertOne(args.entry.value, function(err, res) {
-      if (err) throw err;
-      console.log("Inserted:");
-      console.log(dataLogText);
-      db.close();
-    });
+      db.save('_design/' + args.system.value, newView);
+    }
   });  
+     
+  let dataLogText = `${args.system.value}
+                     ${args.entry.value.sensors}
+                     ${args.entry.value.timestamp}`;
+
+  db.save({
+    system: args.system.value,
+    sensors: args.entry.sensors,
+    timestamp: args.entry.timestamp
+  }, function (err, res) {
+    if (err)
+      console.log("Error writing record.");
+    else
+      console.log(dataLogText);
+  });      
   
   res.end();
 }
