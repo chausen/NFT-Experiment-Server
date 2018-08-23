@@ -21,7 +21,8 @@ exports.logPOST = function(args, res, next) {
     } else {
       console.log('Creating ' + dbName);
       db.create(function(err) {
-        console.log('Error creating ' + dbName);
+        if (err)
+          console.log('Error creating ' + dbName);
       });
     }
   });
@@ -29,7 +30,7 @@ exports.logPOST = function(args, res, next) {
   db.get('_design/' + args.system.value, function (err, doc) {
     if (err) {
       let newView = {};
-      newView[args.system.value] = {
+      newView['systems'] = {
         map: function (doc) {
           if (doc.system && doc.system == args.system.value)
             emit(doc.timestamp, doc.sensors);

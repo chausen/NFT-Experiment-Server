@@ -16,7 +16,7 @@ exports.logGET = function(args, res, next) {
   let inputTimestamp = args.timestamp.value.toISOString();
   let results = {};
 
-  db.view(args.system.value, function(err, res) {
+  db.view('systems/' + args.system.value, function(err, res) {
     res.forEach(function (sensors) {
       if (sensors.timestamp > inputTimestamp) {
         results[sensors.timestamp] = sensors;
