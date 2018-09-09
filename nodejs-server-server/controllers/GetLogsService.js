@@ -11,7 +11,7 @@ exports.logGET = function(args, res, next) {
   
   const cradle = require('cradle');
   const dbName = 'gh'
-  const db = new(cradle.Connection)().database(dbName); 
+  const db = new(cradle.Connection)().database(dbName);   
 
   let inputTimestamp = new Date(args.timestamp.value.toISOString());    
 
@@ -29,7 +29,7 @@ exports.logGET = function(args, res, next) {
         let filteredResults = {};
 
         if (err) {
-          res.write(err);
+          res.write(JSON.stringify(err));
         } else if (results) {
           results.forEach(function (key, row) {
             var docTimestamp = new Date(key);                                
