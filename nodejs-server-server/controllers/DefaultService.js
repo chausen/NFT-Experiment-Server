@@ -10,7 +10,7 @@ exports.logPOST = function(args, res, next) {
    **/
 
   const cradle = require('cradle');
-  const dbName = 'GH';
+  const dbName = 'gh';
   const db = new(cradle.Connection)().database(dbName); 
   
   db.exists(function (err, exists) {
@@ -26,17 +26,24 @@ exports.logPOST = function(args, res, next) {
       });
     }
   });
+  
+  let viewName = '_design/' + args.system.value;  
 
-  db.get('_design/' + args.system.value, function (err, doc) {
+  db.get(viewName, function (err, doc) {
     if (err) {
-      let newView = {};
-      newView['systems'] = {
-        map: function (doc) {
-          if (doc.system && doc.system == args.system.value)
-            emit(doc.timestamp, doc.sensors);
-      }};
+      console.log("Saving view...")
+      console.log(JSON.stringify(viewName));
 
-      db.save('_design/' + args.system.value, newView);
+      db.save(viewName, {
+        byTimestamp: {
+          map: function (doc) {                      
+            if (doc.timestamp)
+              emit(doc.timestamp, doc);
+          }
+        }
+      });                              
+    } else {
+      console.log("View already exists...")
     }
   });  
      
@@ -46,8 +53,8 @@ exports.logPOST = function(args, res, next) {
 
   db.save({
     system: args.system.value,
-    sensors: args.entry.sensors,
-    timestamp: args.entry.timestamp
+    sensors: args.entry.value.sensors,
+    timestamp: args.entry.value.timestamp
   }, function (err, res) {
     if (err)
       console.log("Error writing record.");

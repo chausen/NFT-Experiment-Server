@@ -10,20 +10,38 @@ exports.logGET = function(args, res, next) {
    **/
   
   const cradle = require('cradle');
-  const dbName = 'GH'
+  const dbName = 'gh'
   const db = new(cradle.Connection)().database(dbName); 
 
-  let inputTimestamp = args.timestamp.value.toISOString();
+  let inputTimestamp = new Date(args.timestamp.value.toISOString());    
+
   let results = {};
 
-  db.view('systems/' + args.system.value, function(err, res) {
-    res.forEach(function (sensors) {
-      if (sensors.timestamp > inputTimestamp) {
-        results[sensors.timestamp] = sensors;
-      }
-    });
-  });
+  let designDoc = '_design/' + args.system.value;
+  let viewName = args.system.value + '/byTimestamp'; 
+  
+  db.get(designDoc, function (err, doc) {
+    if (err) {
+      res.write(JSON.stringify("System does not exist: " + args.system.value));      
+      res.end();  
+    } else {
+      db.view(viewName, function(err, results) {  
+        let filteredResults = {};
 
-  res.write(JSON.stringify(results));
-  res.end();  
+        if (err) {
+          res.write(err);
+        } else if (results) {
+          results.forEach(function (key, row) {
+            var docTimestamp = new Date(key);                                
+            if (docTimestamp > inputTimestamp && args.system.value === row.system)
+              filteredResults[row.timestamp] = row.sensors;          
+          });
+
+          console.log('Results: ' + JSON.stringify(filteredResults));
+          res.write(JSON.stringify(filteredResults));          
+        }         
+        res.end();   
+      });
+    }
+  });  
 }
