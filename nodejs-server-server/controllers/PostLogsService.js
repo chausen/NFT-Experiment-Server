@@ -27,11 +27,11 @@ exports.logPOST = function(args, res, next) {
     }
   });
   
-  let viewName = '_design/' + args.system.value;  
+  let viewName = '_design/log';  
 
   db.get(viewName, function (err, doc) {
     if (err) {
-      console.log("Saving view...")
+      console.log("Saving timestamp view...")
       console.log(JSON.stringify(viewName));
 
       db.save(viewName, {
@@ -45,7 +45,7 @@ exports.logPOST = function(args, res, next) {
     } else {
       console.log("View already exists...")
     }
-  });  
+  });
      
   let dataLogText = `${args.system.value}
                      ${args.entry.value.sensors}
